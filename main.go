@@ -32,13 +32,13 @@ func getUserData(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	uri, err := url.Parse(req.RequestURI)
+	requestUri, err := url.Parse(req.RequestURI)
 
 	if err != nil {
 		panic(err)
 	}
 
-	query := uri.RawQuery
+	query := requestUri.RawQuery
 
 	if query == "" {
 		fmt.Println("expected query string, but got nothing")
@@ -46,6 +46,16 @@ func getUserData(w http.ResponseWriter, req *http.Request) {
 	}
 
 	keyValueMap, _ := url.ParseQuery(query)
+	source := keyValueMap["source"][0]
+
+	_, err = url.ParseRequestURI(source)
+
+	if err == nil {
+		w.Write([]byte(generateId()))
+	} else {
+		// id := uri
+		w.Write([]byte("your original URL"))
+	}
 
 	// response := ResponseUri{}
 	// response := ResponseId{r.URL.Path}
@@ -55,6 +65,8 @@ func getUserData(w http.ResponseWriter, req *http.Request) {
 	//    http.Error(w, err.Error(), 400)
 	//    return
 	//}
+}
 
-	// w.Write(data)
+func generateId() string {
+	return "123"
 }
