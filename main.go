@@ -1,12 +1,21 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"net/http"
 	"net/url"
 )
 
 const port string = ":9870"
+
+var dbClient = redis.NewClient(&redis.Options{
+	Addr:     "localhost:6379",
+	Password: "",
+	DB:       0, // default DB
+})
+var ctx = context.Background()
 
 func main() {
 	http.HandleFunc("/services/uri-grain", getUserData)
@@ -51,10 +60,20 @@ func getUserData(w http.ResponseWriter, req *http.Request) {
 	_, err = url.ParseRequestURI(source)
 
 	if err == nil {
-		w.Write([]byte(generateId()))
+		id := generateId()
+		err := dbClient.Set(ctx, id, source, 0).Err()
+		if err != nil {
+			panic(err)
+		}
+
+		w.Write([]byte("generated ID: " + id))
 	} else {
-		// id := uri
-		w.Write([]byte("your original URL"))
+		value, err := dbClient.Get(ctx, source).Result()
+		if err != nil {
+			panic(err)
+		}
+
+		w.Write([]byte("original URL: " + value))
 	}
 
 	// response := ResponseUri{}
