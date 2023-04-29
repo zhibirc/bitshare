@@ -1,9 +1,9 @@
-package uri_grain
+package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 const port string = ":9870"
@@ -11,30 +11,50 @@ const port string = ":9870"
 func main() {
 	http.HandleFunc("/services/uri-grain", getUserData)
 
-	if err := http.ListenAndServe(port, nil); err != nil {
-		fmt.Println("error occurred on server start")
-		return
-	}
+	fmt.Printf("server is listening on port%s\n", port)
 
-	fmt.Printf("server is listening on port%s", port)
+	if err := http.ListenAndServe(port, nil); err != nil {
+		fmt.Printf("error running HTTP server: %s\n", err)
+	}
 }
 
-type ResponseUrl struct {
-	url string
+type ResponseUri struct {
+	uri string
 }
 
 type ResponseId struct {
 	id string
 }
 
-func getUserData(w http.ResponseWriter, r *http.Request) {
-	response := ResponseUrl{r.URL.Path}
-	data, err := json.Marshal(response)
-
-	if err != nil {
-		http.Error(w, err.Error(), 400)
+func getUserData(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "GET" {
+		fmt.Printf("expected GET request, but got %s\n", req.Method)
 		return
 	}
 
-	w.Write(data)
+	uri, err := url.Parse(req.RequestURI)
+
+	if err != nil {
+		panic(err)
+	}
+
+	query := uri.RawQuery
+
+	if query == "" {
+		fmt.Println("expected query string, but got nothing")
+		return
+	}
+
+	keyValueMap, _ := url.ParseQuery(query)
+
+	// response := ResponseUri{}
+	// response := ResponseId{r.URL.Path}
+	// data, err := json.Marshal(response)
+
+	//if err != nil {
+	//    http.Error(w, err.Error(), 400)
+	//    return
+	//}
+
+	// w.Write(data)
 }
