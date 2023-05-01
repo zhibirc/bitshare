@@ -1,94 +1,94 @@
 package main
 
 import (
-    "context"
-    "fmt"
-    "github.com/redis/go-redis/v9"
-    "log"
-    "net/http"
-    "net/url"
+	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/redis/go-redis/v9"
+	"log"
+	"net/http"
+	"net/url"
 )
 
 const port string = ":9870"
 
 var dbClient = redis.NewClient(&redis.Options{
-    Addr:     "localhost:6379",
-    Password: "",
-    DB:       0, // default DB
+	Addr:     "localhost:6379",
+	Password: "",
+	DB:       0, // default DB
 })
 var ctx = context.Background()
 
-func main() {
-    http.HandleFunc("/services/uri-grain", getUserData)
-
-    fmt.Printf("server is listening on port%s\n", port)
-
-    if err := http.ListenAndServe(port, nil); err != nil {
-        log.Fatalf("error running HTTP server: %s\n", err)
-    }
-}
-
 type ResponseUri struct {
-    uri string
+	uri string
 }
 
 type ResponseId struct {
-    id string
+	id string
 }
 
-func getUserData(w http.ResponseWriter, req *http.Request) {
-    if req.Method != "GET" {
-        log.Printf("expected GET request, but got %s\n", req.Method)
-        return
-    }
+func main() {
+	http.HandleFunc("/services/uri-grain", processRequest)
 
-    requestUri, err := url.Parse(req.RequestURI)
+	fmt.Printf("server is listening on port%s\n", port)
 
-    if err != nil {
-        panic(err)
-    }
+	if err := http.ListenAndServe(port, nil); err != nil {
+		log.Fatalf("error running HTTP server: %s\n", err)
+	}
+}
 
-    query := requestUri.RawQuery
+func processRequest(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "GET" {
+		log.Printf("expected GET request, but got %s\n", req.Method)
+		return
+	}
 
-    if query == "" {
-        log.Println("WARNING: query string is empty")
-        return
-    }
+	requestUri, err := url.Parse(req.RequestURI)
 
-    keyValueMap, _ := url.ParseQuery(query)
-    source := keyValueMap["source"][0]
+	if err != nil {
+		panic(err)
+	}
 
-    _, err = url.ParseRequestURI(source)
+	query := requestUri.RawQuery
 
-    if err == nil {
-        id := generateId()
-        err := dbClient.Set(ctx, id, source, 0).Err()
-        if err != nil {
-            panic(err)
-        }
+	if query == "" {
+		log.Println("WARNING: query string is empty")
+		return
+	}
 
-        w.Write([]byte("generated ID: " + id))
-    } else {
-        value, err := dbClient.Get(ctx, source).Result()
-        if err != nil {
-            panic(err)
-        }
+	keyValueMap, _ := url.ParseQuery(query)
+	source := keyValueMap["source"][0]
 
-        w.Write([]byte("original URL: " + value))
-    }
+	_, err = url.ParseRequestURI(source)
 
-    // response := ResponseUri{}
-    // response := ResponseId{r.URL.Path}
-    // data, err := json.Marshal(response)
+	if err == nil {
+		id := generateId()
+		err := dbClient.Set(ctx, id, source, 0).Err()
+		if err != nil {
+			panic(err)
+		}
 
-    //if err != nil {
-    //    http.Error(w, err.Error(), 400)
-    //    return
-    //}
+		data, err := json.Marshal(ResponseId{id})
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Write(data)
+	} else {
+		uri, err := dbClient.Get(ctx, source).Result()
+		if err != nil {
+			panic(err)
+		}
+
+		data, err := json.Marshal(ResponseUri{uri})
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Write(data)
+	}
 }
 
 func generateId() string {
-    return "123"
+	return "123"
 }
-
-// func buildResponse () {}
