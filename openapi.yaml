@@ -1,0 +1,43 @@
+# OpenAPI specification draft for Backend API
+openapi: 3.1.0
+info:
+  x-audience: component-internal
+  title: Backend API
+  contact:
+    name: uri-grain
+    email: email@example.com
+  version: 1.0.0
+components:
+  schemas:
+  parameters:
+  responses:
+servers:
+  - url: https://example.com
+    description: Development server
+paths:
+  /health:
+    get:
+      description: >-
+        Checking application's "health".
+        Used for determining service's liveness (health check).
+      responses:
+        '200':
+          description: Application can be considered as healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    value: ok
+        '503':
+          description: Application cannot be considered as healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    value: error

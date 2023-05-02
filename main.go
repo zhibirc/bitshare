@@ -57,13 +57,14 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 	}
 
 	keyValueMap, _ := url.ParseQuery(query)
-	source := keyValueMap["source"][0]
+	src := keyValueMap["src"][0]
+	// ttl := keyValueMap["ttl"][0] // TODO: implement TTL/expires
 
-	_, err = url.ParseRequestURI(source)
+	_, err = url.ParseRequestURI(src)
 
 	if err == nil {
 		id := generateId()
-		err := dbClient.Set(ctx, id, source, 0).Err()
+		err := dbClient.Set(ctx, id, src, 0).Err()
 		if err != nil {
 			panic(err)
 		}
@@ -75,7 +76,7 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 		}
 		w.Write(data)
 	} else {
-		uri, err := dbClient.Get(ctx, source).Result()
+		uri, err := dbClient.Get(ctx, src).Result()
 		if err != nil {
 			panic(err)
 		}
