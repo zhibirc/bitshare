@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 const port string = ":9870"
@@ -57,14 +58,28 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 	}
 
 	keyValueMap, _ := url.ParseQuery(query)
-	src := keyValueMap["src"][0]
-	// ttl := keyValueMap["ttl"][0] // TODO: implement TTL/expires
 
-	_, err = url.ParseRequestURI(src)
+	srcKey, isSrcKeyExists := keyValueMap["src"]
+	ttlKey, isTtlKeyExists := keyValueMap["ttl"]
+
+	if !isSrcKeyExists {
+		log.Println("WARNING: source is absent")
+		return
+	}
+
+	if isTtlKeyExists {
+		if _, err := strconv.Atoi(ttlKey[0]); err != nil {
+			log.Println("WARNING: TTL should be of type integer")
+		}
+	}
+
+	srcValue := srcKey[0]
+	_, err = url.ParseRequestURI(srcValue)
 
 	if err == nil {
 		id := generateId()
-		err := dbClient.Set(ctx, id, src, 0).Err()
+		// TODO: add TTL expiration if any
+		err := dbClient.Set(ctx, id, srcValue, 0).Err()
 		if err != nil {
 			panic(err)
 		}
@@ -76,7 +91,7 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 		}
 		w.Write(data)
 	} else {
-		uri, err := dbClient.Get(ctx, src).Result()
+		uri, err := dbClient.Get(ctx, srcValue).Result()
 		if err != nil {
 			panic(err)
 		}
