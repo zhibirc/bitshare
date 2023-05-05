@@ -47,7 +47,7 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 	requestUri, err := url.Parse(req.RequestURI)
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	query := requestUri.RawQuery
@@ -81,7 +81,7 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 		// TODO: add TTL expiration if any
 		err := dbClient.Set(ctx, id, srcValue, 0).Err()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		data, err := json.Marshal(ResponseId{id})
@@ -93,7 +93,7 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 	} else {
 		uri, err := dbClient.Get(ctx, srcValue).Result()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		data, err := json.Marshal(ResponseUri{uri})
