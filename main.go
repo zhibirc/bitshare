@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 const port string = ":9870"
@@ -47,7 +48,8 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 	requestUri, err := url.Parse(req.RequestURI)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 
 	query := requestUri.RawQuery
@@ -59,18 +61,24 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 
 	keyValueMap, _ := url.ParseQuery(query)
 
+	var ttl int
 	srcKey, isSrcKeyExists := keyValueMap["src"]
 	ttlKey, isTtlKeyExists := keyValueMap["ttl"]
 
 	if !isSrcKeyExists {
-		log.Println("WARNING: source is absent")
+		log.Println("required \"src\" query parameter is absent")
 		return
 	}
 
 	if isTtlKeyExists {
-		if _, err := strconv.Atoi(ttlKey[0]); err != nil {
-			log.Println("WARNING: TTL should be of type integer")
+		value, err := strconv.Atoi(ttlKey[0])
+
+		if err != nil {
+			log.Println("\"ttl\" query parameter has invalid format, integer expected")
+			return
 		}
+
+		ttl = value
 	}
 
 	srcValue := srcKey[0]
@@ -78,29 +86,36 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 
 	if err == nil {
 		id := generateId()
-		// TODO: add TTL expiration if any
-		err := dbClient.Set(ctx, id, srcValue, 0).Err()
+		err := dbClient.Set(ctx, id, srcValue, time.Duration(ttl)).Err()
+
 		if err != nil {
-			log.Fatal(err)
+			log.Println("error occurred while set ID:URL record")
+			return
 		}
 
 		data, err := json.Marshal(ResponseId{id})
+
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+
 		w.Write(data)
 	} else {
 		uri, err := dbClient.Get(ctx, srcValue).Result()
+
 		if err != nil {
-			log.Fatal(err)
+			log.Println("error on retrieving URL by ID")
+			return
 		}
 
 		data, err := json.Marshal(ResponseUri{uri})
+
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+
 		w.Write(data)
 	}
 }
