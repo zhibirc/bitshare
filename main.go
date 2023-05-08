@@ -39,7 +39,7 @@ func main() {
 	}
 }
 
-func processRequest(w http.ResponseWriter, req *http.Request) {
+func processRequest(res http.ResponseWriter, req *http.Request) {
 	if req.Method != "GET" {
 		log.Printf("expected GET request, but got %s\n", req.Method)
 		return
@@ -96,11 +96,11 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 		data, err := json.Marshal(ResponseId{id})
 
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			http.Error(res, err.Error(), 500)
 			return
 		}
 
-		w.Write(data)
+		res.Write(data)
 	} else {
 		uri, err := dbClient.Get(ctx, srcValue).Result()
 
@@ -112,11 +112,11 @@ func processRequest(w http.ResponseWriter, req *http.Request) {
 		data, err := json.Marshal(ResponseUri{uri})
 
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			http.Error(res, err.Error(), 500)
 			return
 		}
 
-		w.Write(data)
+		res.Write(data)
 	}
 }
 
