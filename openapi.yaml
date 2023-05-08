@@ -1,7 +1,7 @@
 # OpenAPI specification draft for Backend API
 openapi: 3.1.0
 info:
-  x-audience: component-internal
+  x-audience: external-public
   title: Backend API
   contact:
     name: uri-grain
@@ -15,6 +15,11 @@ servers:
   - url: https://example.com
     description: Development server
 paths:
+  /:
+    get:
+      description: >-
+        Get interested data depending on parameters being passed.
+        Core functionality.
   /health:
     get:
       description: >-
@@ -31,13 +36,4 @@ paths:
                   status:
                     type: string
                     value: ok
-        '503':
-          description: Application cannot be considered as healthy.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    value: error
+
