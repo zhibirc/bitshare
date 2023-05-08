@@ -1,6 +1,6 @@
 # uri-grain
 
-![game](/assets/images/common-diagram.jpg)
+![schema](/assets/images/schema.jpg)
 
 ## Usage
 
