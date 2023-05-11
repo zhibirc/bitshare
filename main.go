@@ -66,7 +66,7 @@ func processRequest(res http.ResponseWriter, req *http.Request) {
 	ttlKey, isTtlKeyExists := keyValueMap["ttl"]
 
 	if !isSrcKeyExists {
-		log.Println("required \"src\" query parameter is absent")
+		log.Println("WARNING: required \"src\" query parameter is absent")
 		return
 	}
 
@@ -74,7 +74,7 @@ func processRequest(res http.ResponseWriter, req *http.Request) {
 		value, err := strconv.Atoi(ttlKey[0])
 
 		if err != nil {
-			log.Println("\"ttl\" query parameter has invalid format, integer expected")
+			log.Println("WARNING: \"ttl\" query parameter has invalid format, integer expected")
 			return
 		}
 
@@ -82,6 +82,12 @@ func processRequest(res http.ResponseWriter, req *http.Request) {
 	}
 
 	srcValue := srcKey[0]
+
+	if len(srcValue) == 0 {
+		log.Println("WARNING: \"src\" field is empty")
+		return
+	}
+
 	_, err = url.ParseRequestURI(srcValue)
 
 	if err == nil {
@@ -105,8 +111,8 @@ func processRequest(res http.ResponseWriter, req *http.Request) {
 		uri, err := dbClient.Get(ctx, srcValue).Result()
 
 		if err != nil {
-			log.Println("error on retrieving URL by ID")
-			return
+			log.Println("WARNING: any URI not found by given ID")
+			uri = ""
 		}
 
 		data, err := json.Marshal(ResponseUri{uri})
