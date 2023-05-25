@@ -1,4 +1,4 @@
-# uri-grain
+# bitshare
 
 ![schema](/assets/images/schema.jpg)
 
