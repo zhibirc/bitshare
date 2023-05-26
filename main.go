@@ -1,26 +1,16 @@
+// Package main is the root application entry point.
+// It starts the server and binds routes with corresponding controllers.
 package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
-	"strconv"
-	"time"
 	"controllers/main"
 )
 
 const port string = ":9870"
-
-type ResponseUri struct {
-	uri string
-}
-
-type ResponseId struct {
-	id string
-}
 
 var ctx = context.Background()
 

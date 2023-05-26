@@ -1,14 +1,28 @@
+// Package controllers contains route handlers.
 package controllers
 
 import (
 	"context"
 	"services/db"
+	"net/url"
+	"encoding/json"
+	"strconv"
+	"time"
+	"log"
 )
 
-// TODO: move to env vars
+// TODO: Move to env vars.
 const DB_ENGINE_REDIS string = "REDIS"
 
 var dbClient = GetConnection(DB_ENGINE_REDIS)
+
+type responseUri struct {
+	uri string
+}
+
+type responseId struct {
+	id string
+}
 
 func RouteMain (ctx context.Context) func {
 	return (res http.ResponseWriter, req *http.Request) {
@@ -71,7 +85,7 @@ func RouteMain (ctx context.Context) func {
 				return
 			}
 
-			data, err := json.Marshal(ResponseId{id})
+			data, err := json.Marshal(responseId{id})
 
 			if err != nil {
 				http.Error(res, err.Error(), 500)
@@ -87,7 +101,7 @@ func RouteMain (ctx context.Context) func {
 				uri = ""
 			}
 
-			data, err := json.Marshal(ResponseUri{uri})
+			data, err := json.Marshal(responseUri{uri})
 
 			if err != nil {
 				http.Error(res, err.Error(), 500)

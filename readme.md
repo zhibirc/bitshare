@@ -2,6 +2,10 @@
 
 ![schema](/assets/images/schema.jpg)
 
+## Purpose/motivation
+
+
+
 ## Usage
 
 ### Development
