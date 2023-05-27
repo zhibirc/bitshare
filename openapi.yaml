@@ -4,7 +4,7 @@ info:
   x-audience: external-public
   title: Backend API
   contact:
-    name: uri-grain
+    name: bitshare
     email: email@example.com
   version: 1.0.0
 components:

@@ -26,7 +26,7 @@ type responseId struct {
 
 func RouteMain (ctx context.Context) func {
 	return (res http.ResponseWriter, req *http.Request) {
-		if req.Method != "GET" {
+		if req.Method != http.MethodGet {
 			log.Printf("expected GET request, but got %s\n", req.Method)
 			return
 		}

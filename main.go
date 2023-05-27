@@ -12,9 +12,9 @@ import (
 
 const port string = ":9870"
 
-var ctx = context.Background()
-
 func main() {
+	var ctx = context.Background()
+
 	http.HandleFunc("/", RouteMain(ctx))
 
 	fmt.Printf("server is listening on port%s\n", port)
