@@ -1,4 +1,4 @@
-module github.com/zhibirc/uri-grain
+module github.com/zhibirc/bitshare
 
 go 1.20
 

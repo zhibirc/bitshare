@@ -7,15 +7,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"controllers/main"
+	"github.com/zhibirc/bitshare/controllers"
 )
 
 const port string = ":9870"
 
 func main() {
-	var ctx = context.Background()
+	ctx := context.Background()
 
-	http.HandleFunc("/", RouteMain(ctx))
+	http.HandleFunc("/", controllers.RouteMain(ctx))
 
 	fmt.Printf("server is listening on port%s\n", port)
 

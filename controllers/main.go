@@ -3,7 +3,7 @@ package controllers
 
 import (
 	"context"
-	"services/db"
+	"github.com/zhibirc/bitshare/services"
 	"net/url"
 	"encoding/json"
 	"strconv"
@@ -14,7 +14,7 @@ import (
 // TODO: Move to env vars.
 const DB_ENGINE_REDIS string = "REDIS"
 
-var dbClient = GetConnection(DB_ENGINE_REDIS)
+var dbClient = services.GetConnection(DB_ENGINE_REDIS)
 
 type responseUri struct {
 	uri string

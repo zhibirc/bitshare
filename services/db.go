@@ -1,6 +1,6 @@
 package db
 
-import "adapters"
+import "github.com/zhibirc/bitshare/adapters"
 
 func GetConnection (engine) {
 	// TODO: implement

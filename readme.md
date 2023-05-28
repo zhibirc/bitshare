@@ -1,6 +1,9 @@
 # bitshare
 
-![schema](/assets/images/schema.jpg)
+<h3 align="center">Architecture Overview</h3>
+<p align="center">
+    <img src="/assets/images/schema.jpg">
+</p>
 
 ## Purpose/motivation
 
