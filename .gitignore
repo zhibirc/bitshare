@@ -2,7 +2,7 @@
 .DS_Store
 Thumbs.db
 
-# backup
+# backups
 *.bak
 *.orig
 *.tmp
@@ -15,5 +15,6 @@ Thumbs.db
 logs/
 *.log
 
-# environment variable files
-.env
+# environment variables
+.env.*
+.env-*
