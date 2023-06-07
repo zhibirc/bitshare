@@ -10,6 +10,7 @@ import (
 	"github.com/zhibirc/bitshare/controllers"
 )
 
+// TCP port that application is listening on.
 const port string = ":9870"
 
 func main() {
