@@ -7,20 +7,25 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"github.com/joho/godotenv"
 	"github.com/zhibirc/bitshare/controllers"
 )
 
-// TCP port that application is listening on.
-const port string = ":9870"
-
 func main() {
+	err := godotenv.Load()
+
+	if err != nil {
+    	log.Fatal("Error loading .env file")
+  	}
+
+  	port := fmt.Sprintf(":%s", os.Getenv("TCP_PORT"))
 	ctx := context.Background()
 
 	http.HandleFunc("/", controllers.RouteMain(ctx))
 
-	fmt.Printf("server is listening on port%s\n", port)
+	fmt.Printf("Server is listening on port%s\n", port)
 
 	if err := http.ListenAndServe(port, nil); err != nil {
-		log.Fatalf("error running HTTP server: %s\n", err)
+		log.Fatalf("Error running HTTP server: %s\n", err)
 	}
 }
