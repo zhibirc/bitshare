@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+
 	"github.com/joho/godotenv"
 	"github.com/zhibirc/bitshare/controllers"
 )
@@ -15,10 +17,10 @@ func main() {
 	err := godotenv.Load()
 
 	if err != nil {
-    	log.Fatal("Error loading .env file")
-  	}
+		log.Fatal("Error loading .env file")
+	}
 
-  	port := fmt.Sprintf(":%s", os.Getenv("TCP_PORT"))
+	port := fmt.Sprintf(":%s", os.Getenv("TCP_PORT"))
 	ctx := context.Background()
 
 	http.HandleFunc("/", controllers.RouteMain(ctx))
