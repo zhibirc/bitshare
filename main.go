@@ -3,7 +3,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,9 +20,9 @@ func main() {
 	}
 
 	port := fmt.Sprintf(":%s", os.Getenv("TCP_PORT"))
-	ctx := context.Background()
 
-	http.HandleFunc("/", controllers.RouteMain(ctx))
+	http.HandleFunc("/", controllers.RouteMain)
+	http.HandleFunc("/health", controllers.RouteHealth)
 
 	fmt.Printf("Server is listening on port%s\n", port)
 

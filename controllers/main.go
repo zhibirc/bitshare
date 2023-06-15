@@ -26,14 +26,13 @@ type responseId struct {
 	id string
 }
 
-var localContext context.Context
-
-func processRequest(res http.ResponseWriter, req *http.Request) {
+func RouteMain(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
 		log.Printf("expected GET request, but got %s\n", req.Method)
 		return
 	}
 
+	ctx := context.Background()
 	requestUri, err := url.Parse(req.RequestURI)
 
 	if err != nil {
@@ -81,7 +80,7 @@ func processRequest(res http.ResponseWriter, req *http.Request) {
 
 	if err == nil {
 		id := generateId()
-		err := dbClient.Set(localContext, id, srcValue, time.Duration(ttl)).Err()
+		err := dbClient.Set(ctx, id, srcValue, time.Duration(ttl)).Err()
 
 		if err != nil {
 			log.Println("error occurred while set ID:URL record")
@@ -97,7 +96,7 @@ func processRequest(res http.ResponseWriter, req *http.Request) {
 
 		res.Write(data)
 	} else {
-		uri, err := dbClient.Get(localContext, srcValue).Result()
+		uri, err := dbClient.Get(ctx, srcValue).Result()
 
 		if err != nil {
 			log.Println("WARNING: any URI not found by given ID")
@@ -113,10 +112,4 @@ func processRequest(res http.ResponseWriter, req *http.Request) {
 
 		res.Write(data)
 	}
-}
-
-func RouteMain(ctx context.Context) func(http.ResponseWriter, *http.Request) {
-	localContext = ctx
-
-	return processRequest
 }
