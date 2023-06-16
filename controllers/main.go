@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/zhibirc/bitshare/services"
+	"github.com/zhibirc/bitshare/tools"
 )
 
 // TODO: Move to env vars.
@@ -79,7 +80,7 @@ func RouteMain(res http.ResponseWriter, req *http.Request) {
 	_, err = url.ParseRequestURI(srcValue)
 
 	if err == nil {
-		id := generateId()
+		id := tools.GenerateId()
 		err := dbClient.Set(ctx, id, srcValue, time.Duration(ttl)).Err()
 
 		if err != nil {

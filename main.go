@@ -19,14 +19,15 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	mux := http.NewServeMux()
 	port := fmt.Sprintf(":%s", os.Getenv("TCP_PORT"))
 
-	http.HandleFunc("/", controllers.RouteMain)
-	http.HandleFunc("/health", controllers.RouteHealth)
+	mux.HandleFunc("/", controllers.RouteMain)
+	mux.HandleFunc("/health", controllers.RouteHealth)
 
 	fmt.Printf("Server is listening on port%s\n", port)
 
-	if err := http.ListenAndServe(port, nil); err != nil {
+	if err := http.ListenAndServe(port, mux); err != nil {
 		log.Fatalf("Error running HTTP server: %s\n", err)
 	}
 }
