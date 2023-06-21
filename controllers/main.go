@@ -10,14 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/zhibirc/bitshare/services"
+	"github.com/zhibirc/bitshare/models"
 	"github.com/zhibirc/bitshare/tools"
 )
-
-// TODO: Move to env vars.
-const DB_ENGINE_REDIS string = "REDIS"
-
-var dbClient = services.GetConnection(DB_ENGINE_REDIS)
 
 type responseUri struct {
 	uri string
@@ -81,7 +76,7 @@ func RouteMain(res http.ResponseWriter, req *http.Request) {
 
 	if err == nil {
 		id := tools.GenerateId()
-		err := dbClient.Set(ctx, id, srcValue, time.Duration(ttl)).Err()
+		err := models.Record.Create(ctx, id, srcValue, time.Duration(ttl))
 
 		if err != nil {
 			log.Println("error occurred while set ID:URL record")
@@ -97,7 +92,7 @@ func RouteMain(res http.ResponseWriter, req *http.Request) {
 
 		res.Write(data)
 	} else {
-		uri, err := dbClient.Get(ctx, srcValue).Result()
+		uri, err := models.Record.GetOne(ctx, srcValue).Result()
 
 		if err != nil {
 			log.Println("WARNING: any URI not found by given ID")
