@@ -22,17 +22,20 @@ type responseId struct {
 	id string
 }
 
-func RouteMain(res http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodGet {
-		log.Printf("expected GET request, but got %s\n", req.Method)
+func RouteMain(response http.ResponseWriter, request *http.Request) {
+	if request.Method != http.MethodGet {
+		log.Printf("expected GET request, but got %s\n", request.Method)
+		response.Header().Set("Allow", "GET")
+		http.Error(response, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	ctx := context.Background()
-	requestUri, err := url.Parse(req.RequestURI)
+	requestUri, err := url.Parse(request.RequestURI)
 
 	if err != nil {
 		log.Println(err)
+		http.Error(response, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -40,6 +43,7 @@ func RouteMain(res http.ResponseWriter, req *http.Request) {
 
 	if query == "" {
 		log.Println("WARNING: query string is empty")
+		http.Error(response, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -51,6 +55,7 @@ func RouteMain(res http.ResponseWriter, req *http.Request) {
 
 	if !isSrcKeyExists {
 		log.Println("WARNING: required \"src\" query parameter is absent")
+		http.Error(response, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -59,6 +64,7 @@ func RouteMain(res http.ResponseWriter, req *http.Request) {
 
 		if err != nil {
 			log.Println("WARNING: \"ttl\" query parameter has invalid format, integer expected")
+			http.Error(response, "Bad Request", http.StatusBadRequest)
 			return
 		}
 
@@ -69,6 +75,7 @@ func RouteMain(res http.ResponseWriter, req *http.Request) {
 
 	if len(srcValue) == 0 {
 		log.Println("WARNING: \"src\" field is empty")
+		http.Error(response, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -80,32 +87,33 @@ func RouteMain(res http.ResponseWriter, req *http.Request) {
 
 		if err != nil {
 			log.Println("error occurred while set ID:URL record")
+			http.Error(response, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
 		data, err := json.Marshal(responseId{id})
 
 		if err != nil {
-			http.Error(res, err.Error(), 500)
+			http.Error(response, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		res.Write(data)
+		response.Write(data)
 	} else {
 		uri, err := models.Record.GetOne(ctx, srcValue).Result()
 
 		if err != nil {
-			log.Println("WARNING: any URI not found by given ID")
+			//log.Println("WARNING: any URI not found by given ID")
 			uri = ""
 		}
 
 		data, err := json.Marshal(responseUri{uri})
 
 		if err != nil {
-			http.Error(res, err.Error(), 500)
+			http.Error(response, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		res.Write(data)
+		response.Write(data)
 	}
 }
