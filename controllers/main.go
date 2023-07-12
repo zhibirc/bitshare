@@ -83,6 +83,7 @@ func RouteMain(response http.ResponseWriter, request *http.Request) {
 
 	if err == nil {
 		id := tools.GenerateId()
+		// TODO: we should check for duplications for generated ID to be ensure it's unique
 		err := models.Record.Create(ctx, id, srcValue, time.Duration(ttl))
 
 		if err != nil {
